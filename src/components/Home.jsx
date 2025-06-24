@@ -7,11 +7,11 @@ import Buscador from "@/components/ui/Buscador";
 export default function Home() {
   return (
     <section className="space-y-10 px-6 py-8">
-      <Buscador />
+      {/* <Buscador />
       <Top10 />
       <Novedades />
       <Proximamente />
-      <Populares />
+      <Populares /> */}
     </section>
   );
 }
