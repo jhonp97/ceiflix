@@ -1,60 +1,53 @@
-import { useContext, useEffect, useState } from "react";
+'use client';
 
- 
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
 
 const Perfil = () => {
-    const [error, setError] = useState(null);
-    const [user, setUser] = useState(null)
- 
+  const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
 
-    // renombro la variable en decontsruccion porque ya estoy usando user
-    const {user:userContext, logout} = useContext(AuthContext)
+  const { user: userContext, logout } = useContext(AuthContext);
 
-    useEffect(() => {
-        fetchUser()
-    }, [])
-    const BACKEND_API = import.meta.env.VITE_BACKEND_API
+  const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-    const fetchUser = async () => {
-        try {
-            const token = localStorage.getItem('token')
-            const response = await fetch(`${BACKEND_API}/auth/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            if (!response.status) {
-                throw new Error("Error al obtener datos del usuario")
-            }
-            const responseData = await response.json();
-            console.log(responseData);
-            setUser(responseData.data);
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
-        } catch (e) {
-            setError(e.message)
-        }
+  const fetchUser = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${BACKEND_API}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Usuario no autorizado");
+      }
+
+      const data = await response.json();
+      setUser(data);
+    } catch (error) {
+      console.error(error);
+      setError("No se pudo cargar el perfil");
     }
+  };
 
+  return (
+    <div className="p-6">
+      <h1>Perfil del usuario</h1>
+      {error && <p>{error}</p>}
+      {user && (
+        <div>
+          <p><b>Nombre:</b> {user.name}</p>
+          <p><b>Email:</b> {user.email}</p>
+        </div>
+      )}
+    </div>
+  );
+};
 
-
-    return (
-        <>
-            <h3>Estoy en Perfil </h3>
-            <h3>{userContext.email}</h3>
-            {user ?
-                <div>
-                    <p>Bienvenido: {user.name} !</p>
-                    <p>Email: {user.email} !</p>
-                    <button onClick={logout}>Salir</button>
-                </div> 
-                :
-                <p>Cargando usuario...</p>
-            }
-
-            {error && <p className="text-red-400">{error}</p>}
-
-        </>
-    )
-}
 export default Perfil;
