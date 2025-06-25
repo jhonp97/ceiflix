@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MovieCards } from "@/components/ui/MovieCards";
+import Link from "next/link";
 
 export default function Home() {
   const [peliculas, setPeliculas] = useState([]);
@@ -87,6 +88,7 @@ export default function Home() {
           <p className="text-gray-400">No se encontraron resultados</p>
         ) : (
           peliculas.map(({ id, title, release_date, vote_average, poster_path }) => (
+            <Link href={`/pelicula/${id}`} key={id}>
             <MovieCards
               key={id}
               title={title}
@@ -94,6 +96,7 @@ export default function Home() {
               rating={vote_average}
               poster={poster_path}
             />
+            </Link>
           ))
         )}
       </section>
