@@ -8,6 +8,7 @@ export default function Home() {
 
   const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
+  // ...&language=es-ES para que los titulos se vean en español
   useEffect(() => {
     fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=es-ES`)
       .then((res) => res.json())
