@@ -7,16 +7,16 @@ export const Header = () => {
         <header className=" bg-gray-500 text-white"> 
             <nav className="flex justify-between p-2">
                 <Link href="/"/>
-                <Image
+                {/* <Image
                     src="/next.svg"
                     alt="logo"
                     width={90}
                     height={19}
-                />
+                /> */}
                 <ul className="flex gap-2">
                    
-                    <li><Link href="/Login">Login</Link></li>
-                    <li><Link href="/Register">Registrarse</Link></li>
+                    <li><Link href="/login">Login</Link></li>
+                    <li><Link href="/register">Registrarse</Link></li>
                  
                 </ul>
             </nav>

@@ -1,7 +1,8 @@
 'use client';
 
-import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
+import { useContext, useEffect, useState } from "react";
+
 
 const Perfil = () => {
   const [error, setError] = useState(null);
