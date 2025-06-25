@@ -88,7 +88,7 @@ export default function Home() {
           <p className="text-gray-400">No se encontraron resultados</p>
         ) : (
           peliculas.map(({ id, title, release_date, vote_average, poster_path }) => (
-            <Link href={`/pelicula/${id}`} key={id}>
+            <Link href={`/mis-peliculas/${id}`} key={id}>
             <MovieCards
               key={id}
               title={title}

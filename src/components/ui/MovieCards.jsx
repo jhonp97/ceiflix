@@ -1,4 +1,4 @@
-// components/MovieCards.jsx
+
 export const MovieCards = ({ title, year, rating, overview, poster }) => {
     const imageURL = poster
 
