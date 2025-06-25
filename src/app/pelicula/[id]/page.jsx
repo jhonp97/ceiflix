@@ -5,7 +5,8 @@ const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
 async function getPelicula(id) {
-  const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=es-ES`);
+    // https://api.themoviedb.org/3/movie/{movie_id} ( endpoint documentacion) con api key ni funciona pero si con BEARER_TOKEN
+  const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`);
   if (!res.ok) {
     throw new Error("No se pudo cargar la película");
   }

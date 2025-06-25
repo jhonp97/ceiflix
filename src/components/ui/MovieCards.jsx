@@ -1,6 +1,8 @@
 // components/MovieCards.jsx
 export const MovieCards = ({ title, year, rating, overview, poster }) => {
     const imageURL = poster
+
+    // fondo de pantalla https://image.tmdb.org/t/p/w500/original/${poster}`
       ? `https://image.tmdb.org/t/p/w500${poster}`
       : "/no-image.png"; // imagen por defecto si no hay poster
   

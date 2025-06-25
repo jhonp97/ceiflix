@@ -16,6 +16,11 @@ export default function Home() {
   }, []);
 
   return (
+// Buscador + filtro
+
+
+
+// Catalogo de peliculas 
 
 <section className="flex flex-wrap gap-6 p-6 justify-center">
   {peliculas.map(({ id, title, release_date, vote_average, overview, poster_path }) => (
