@@ -1,52 +1,70 @@
-// 'use client';
+'use client'
 
-// import { AuthContext } from "@/context/AuthContext";
-// import { useState,useContext, useEffect } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mensaje, setMensaje] = useState("");
+  const router = useRouter();
 
-// const Login = () => {
-//     const [error, setError] = useState(null);
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
-//     const {login, isLoggedIn}= useContext(AuthContext)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMensaje("");
 
-    
+    try {
+      const res = await fetch(`${BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
 
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
+      const data = await res.json();
 
-       
-//         // leer form del navegador el form submit
-//         const formData = new FormData(e.target);
-//         const data = Object.fromEntries(formData.entries());
+      if (!res.ok) throw new Error(data.msg || "Error al iniciar sesión");
 
-//         console.log("data", data);
+      // Guardar token en localStorage
+      localStorage.setItem("token", data.data.token);
 
-//         try {
-//             // manda el formData a mi funcion de Login
-//               await login(data) ; 
+      setMensaje("✅ Inicio de sesión exitoso");
+      router.push("/"); // redirigir al inicio
+    } catch (error) {
+      setMensaje(`❌ ${error.message}`);
+    }
+  };
 
-//         } catch (e) {
-//             setError(e.message);
-//         }
-//     }
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-black text-white p-4">
+      <form onSubmit={handleSubmit} className="bg-gray-900 p-8 rounded-lg w-full max-w-md shadow-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">Iniciar Sesión</h1>
 
-//     return (
-//         <>
-//             <h3>Inicie Sesión</h3>
-//             <form onSubmit={handleSubmit}>
-//                 <div>
-//                     <label htmlFor="user">Email</label>
-//                     <input type="email" id="user" name="email" required />
-//                 </div>
-//                 <div>
-//                     <label htmlFor="pass">Contraseña</label>
-//                     <input type="password" id="pass" name="password" required />
-//                 </div>
+        <label className="block mb-2">Email</label>
+        <input
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+          className="w-full p-2 mb-4 rounded bg-gray-800 text-white"
+        />
 
-//                 <button type="submit">Acceder </button>
-//             </form>
+        <label className="block mb-2">Contraseña</label>
+        <input
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+          className="w-full p-2 mb-4 rounded bg-gray-800 text-white"
+        />
 
-//             {error && <p className="text-red-400">{error}</p>}
-//         </>)
-// }
-// export default Login;
+        <button type="submit" className="bg-blue-600 hover:bg-blue-700 w-full py-2 rounded mt-2">
+          Ingresar
+        </button>
+
+        {mensaje && <p className="mt-4 text-sm text-center">{mensaje}</p>}
+      </form>
+    </div>
+  );
+}
