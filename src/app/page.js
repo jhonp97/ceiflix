@@ -16,15 +16,15 @@ export default function Home() {
   }, []);
 
   return (
-    
+
 <section className="flex flex-wrap gap-6 p-6 justify-center">
   {peliculas.map(({ id, title, release_date, vote_average, overview, poster_path }) => (
     <MovieCards
       key={id}
       title={title}
-      year={release_date?.split("-")[0]}
+       year={release_date?.split("-")[0]}
       rating={vote_average}
-      overview={overview}
+      // overview={overview}
       poster={poster_path}
     />
   ))}
