@@ -1,54 +1,50 @@
 'use client';
 
-import { AuthContext } from "@/context/AuthContext";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-
-const Perfil = () => {
-  const [error, setError] = useState(null);
+export default function PerfilPage() {
   const [user, setUser] = useState(null);
+  const [error, setError] = useState("");
 
-  const { user: userContext, logout } = useContext(AuthContext);
-
-  const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
   useEffect(() => {
-    fetchUser();
+    const fetchPerfil = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Token no encontrado");
+
+        const res = await fetch(`${BASE_URL}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.msg || "Error al cargar perfil");
+
+        setUser(data.data); 
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchPerfil();
   }, []);
 
-  const fetchUser = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BACKEND_API}/auth/me`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Usuario no autorizado");
-      }
-
-      const data = await response.json();
-      setUser(data);
-    } catch (error) {
-      console.error(error);
-      setError("No se pudo cargar el perfil");
-    }
-  };
-
   return (
-    <div className="p-6">
-      <h1>Perfil del usuario</h1>
-      {error && <p>{error}</p>}
+    <div className="p-6 max-w-xl mx-auto text-white">
+      <h1 className="text-3xl font-bold mb-4">👤 Mi Perfil</h1>
+
+      {error && <p className="text-red-500">❌ {error}</p>}
+
       {user && (
-        <div>
-          <p><b>Nombre:</b> {user.name}</p>
+        <div className="bg-gray-800 p-4 rounded-lg shadow">
+          <p><b>Usuario:</b> {user.username}</p>
           <p><b>Email:</b> {user.email}</p>
+          <p><b>Registrado en:</b> {new Date(user.createdAt).toLocaleDateString()}</p>
         </div>
       )}
     </div>
   );
-};
-
-export default Perfil;
+}
