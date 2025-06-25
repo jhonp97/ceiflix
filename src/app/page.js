@@ -29,6 +29,7 @@ export default function Home() {
     }
   };
 
+  // ...&language=es-ES para que los titulos se vean en español
   useEffect(() => {
     const cargarPopulares = async () => {
       try {
