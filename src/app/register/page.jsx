@@ -1,53 +1,79 @@
+'use client'
 
-import { useState, useContext } from "react";
-import { AuthContext } from "@/context/AuthContext";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-const Register = () => {
-    const [error, setError] = useState(null);
+export default function RegisterPage() {
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [mensaje, setMensaje] = useState("");
+  const router = useRouter();
 
-    const {register}= useContext(AuthContext)
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
-  
-    // const BACKEND_API = import.meta.env.VITE_BACKEND_API;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMensaje("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    try {
+      const res = await fetch(`${BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, username, password })
+      });
 
-       
-        // leer form del navegador el form submit
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData.entries());
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Error al registrarse");
 
-        console.log("data", data);
+      // Guardar token
+      localStorage.setItem("token", data.data.token);
 
-        try {
-            await register(data)
-
-        } catch (e) {
-            setError(e.message);
-        }
+      setMensaje("✅ Registro exitoso");
+      router.push("/"); // redirigir a inicio
+    } catch (error) {
+      setMensaje(`❌ ${error.message}`);
     }
+  };
 
-    return (
-        <>
-            <h3>Estoy en Register </h3>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="user">Email</label>
-                    <input type="email" id="user" name="email" required />
-                </div>
-                <div>
-                    <label htmlFor="pass">Contraseña</label>
-                    <input type="password" id="pass" name="password" required />
-                </div>
-                <div>
-                    <label htmlFor="name">Nombre</label>
-                    <input type="text" id="name" name="name" required />
-                </div>
-                <button type="submit">Enviar </button>
-            </form>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-black text-white p-4">
+      <form onSubmit={handleSubmit} className="bg-gray-900 p-8 rounded-lg w-full max-w-md shadow-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">Crear Cuenta</h1>
 
-            {error && <p className="text-red-400">{error}</p>}
-        </>)
+        <label className="block mb-2">Email</label>
+        <input
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+          className="w-full p-2 mb-4 rounded bg-gray-800 text-white"
+        />
+
+        <label className="block mb-2">Nombre de usuario</label>
+        <input
+          type="text"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+          className="w-full p-2 mb-4 rounded bg-gray-800 text-white"
+        />
+
+        <label className="block mb-2">Contraseña</label>
+        <input
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+          className="w-full p-2 mb-4 rounded bg-gray-800 text-white"
+        />
+
+        <button type="submit" className="bg-green-600 hover:bg-green-700 w-full py-2 rounded mt-2">
+          Registrarse
+        </button>
+
+        {mensaje && <p className="mt-4 text-sm text-center">{mensaje}</p>}
+      </form>
+    </div>
+  );
 }
-export default Register;
