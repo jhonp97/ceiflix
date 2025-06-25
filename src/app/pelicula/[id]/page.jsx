@@ -1,31 +1,102 @@
-// app/pelicula/[id]/page.jsx
-import MovieCard from "@/components/ui/MovieCards";
+'use client'
 
-const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-const BASE_URL = "https://api.themoviedb.org/3";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
-async function getPelicula(id) {
-    // https://api.themoviedb.org/3/movie/{movie_id} ( endpoint documentacion) con api key ni funciona pero si con BEARER_TOKEN
-  const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}`);
-  if (!res.ok) {
-    throw new Error("No se pudo cargar la película");
-  }
-  return res.json();
-}
+export default function DetallePelicula() {
+  const { id } = useParams();
+  const [pelicula, setPelicula] = useState(null);
+  const [error, setError] = useState(null);
+  const [mensaje, setMensaje] = useState("");
+  const [calificacion, setCalificacion] = useState(3); // valor por defecto
 
-export default async function PeliculaPage({ params }) {
-  const { id } = params;
-  const peli = await getPelicula(id);
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+
+  useEffect(() => {
+    const fetchPelicula = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/tmdb/pelicula/${id}`);
+        if (!res.ok) throw new Error("Película no encontrada");
+        const data = await res.json();
+        setPelicula(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    if (id) fetchPelicula();
+  }, [id]);
+
+  const handleGuardar = async () => {
+    const token = localStorage.getItem("token"); // Ajusta esto si usas context
+
+    if (!token) {
+      setMensaje("Debes iniciar sesión para guardar la película.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/peliculas/agregar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          tmdbId: pelicula.id,
+          titulo: pelicula.title,
+          poster: pelicula.poster_path,
+          calificacion: calificacion
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Error al guardar película");
+      setMensaje("✅ Película guardada en tu lista");
+    } catch (err) {
+      setMensaje(`❌ ${err.message}`);
+    }
+  };
+
+  if (error) return <p className="text-red-500 text-center mt-8">❌ {error}</p>;
+  if (!pelicula) return <p className="text-center mt-8 text-gray-400">Cargando película...</p>;
 
   return (
-    <section className="p-6 max-w-4xl mx-auto">
-      <MovieCard
-        title={peli.title}
-        image={peli.poster_path}
-        date={peli.release_date}
-        rating={peli.vote_average}
-        overview={peli.overview}
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold mb-2">{pelicula.title}</h1>
+      <p className="text-gray-500 mb-4">{pelicula.release_date} • ⭐ {pelicula.vote_average}</p>
+      <img
+        src={`https://image.tmdb.org/t/p/w500${pelicula.poster_path}`}
+        alt={pelicula.title}
+        className="w-full rounded-lg mb-4 shadow"
       />
-    </section>
+      <p className="text-lg text-gray-300 mb-6">{pelicula.overview}</p>
+
+      {/* Calificación del usuario */}
+      <div className="flex items-center gap-4 mb-4">
+        <label htmlFor="rating" className="text-white">Tu calificación:</label>
+        <select
+          id="rating"
+          value={calificacion}
+          onChange={(e) => setCalificacion(Number(e.target.value))}
+          className="p-2 rounded bg-gray-800 text-white"
+        >
+          {[1, 2, 3, 4, 5].map(n => (
+            <option key={n} value={n}>{n} ⭐</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Botón para guardar */}
+      <button
+        onClick={handleGuardar}
+        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+      >
+        Marcar como vista
+      </button>
+
+      {/* Mensaje */}
+      {mensaje && <p className="mt-4 text-center text-sm text-white">{mensaje}</p>}
+    </div>
   );
 }
