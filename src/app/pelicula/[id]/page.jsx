@@ -7,6 +7,8 @@ export default function DetallePelicula() {
   const { id } = useParams();
   const [pelicula, setPelicula] = useState(null);
   const [error, setError] = useState(null);
+  const [mensaje, setMensaje] = useState("");
+  const [calificacion, setCalificacion] = useState(3); // valor por defecto
 
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
@@ -22,18 +24,42 @@ export default function DetallePelicula() {
       }
     };
 
-    if (id) {
-      fetchPelicula();
-    }
+    if (id) fetchPelicula();
   }, [id]);
 
-  if (error) {
-    return <p className="text-red-500 text-center mt-8">❌ {error}</p>;
-  }
+  const handleGuardar = async () => {
+    const token = localStorage.getItem("token"); // Ajusta esto si usas context
 
-  if (!pelicula) {
-    return <p className="text-center mt-8 text-gray-400">Cargando película...</p>;
-  }
+    if (!token) {
+      setMensaje("Debes iniciar sesión para guardar la película.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/peliculas/agregar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          tmdbId: pelicula.id,
+          titulo: pelicula.title,
+          poster: pelicula.poster_path,
+          calificacion: calificacion
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Error al guardar película");
+      setMensaje("✅ Película guardada en tu lista");
+    } catch (err) {
+      setMensaje(`❌ ${err.message}`);
+    }
+  };
+
+  if (error) return <p className="text-red-500 text-center mt-8">❌ {error}</p>;
+  if (!pelicula) return <p className="text-center mt-8 text-gray-400">Cargando película...</p>;
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -44,7 +70,33 @@ export default function DetallePelicula() {
         alt={pelicula.title}
         className="w-full rounded-lg mb-4 shadow"
       />
-      <p className="text-lg text-gray-300">{pelicula.overview}</p>
+      <p className="text-lg text-gray-300 mb-6">{pelicula.overview}</p>
+
+      {/* Calificación del usuario */}
+      <div className="flex items-center gap-4 mb-4">
+        <label htmlFor="rating" className="text-white">Tu calificación:</label>
+        <select
+          id="rating"
+          value={calificacion}
+          onChange={(e) => setCalificacion(Number(e.target.value))}
+          className="p-2 rounded bg-gray-800 text-white"
+        >
+          {[1, 2, 3, 4, 5].map(n => (
+            <option key={n} value={n}>{n} ⭐</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Botón para guardar */}
+      <button
+        onClick={handleGuardar}
+        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+      >
+        Marcar como vista
+      </button>
+
+      {/* Mensaje */}
+      {mensaje && <p className="mt-4 text-center text-sm text-white">{mensaje}</p>}
     </div>
   );
 }
