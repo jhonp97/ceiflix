@@ -62,17 +62,24 @@ export default function DetallePelicula() {
   if (!pelicula) return <p className="text-center mt-8 text-gray-400">Cargando película...</p>;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div
+    className="min-h-screen bg-cover bg-center text-white p-6"
+    style={{
+      backgroundImage: `url(https://image.tmdb.org/t/p/original${pelicula.backdrop_path})`,
+    }}
+  >
+    <div className="bg-black/80 bg-opacity-70 p-6 rounded-lg max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-2">{pelicula.title}</h1>
-      <p className="text-gray-500 mb-4">{pelicula.release_date} • ⭐ {pelicula.vote_average}</p>
+      <p className="text-gray-300 mb-4">{pelicula.release_date} • ⭐ {pelicula.vote_average}</p>
+  
       <img
         src={`https://image.tmdb.org/t/p/w500${pelicula.poster_path}`}
         alt={pelicula.title}
-        className="w-full rounded-lg mb-4 shadow"
+        className="rounded-lg shadow-lg object-contain mx-auto"
       />
-      <p className="text-lg text-gray-300 mb-6">{pelicula.overview}</p>
-
-      {/* Calificación del usuario */}
+  
+      <p className="text-lg text-gray-200 mb-6">{pelicula.overview}</p>
+  
       <div className="flex items-center gap-4 mb-4">
         <label htmlFor="rating" className="text-white">Tu calificación:</label>
         <select
@@ -86,17 +93,16 @@ export default function DetallePelicula() {
           ))}
         </select>
       </div>
-
-      {/* Botón para guardar */}
+  
       <button
         onClick={handleGuardar}
         className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
       >
         Marcar como vista
       </button>
-
-      {/* Mensaje */}
+  
       {mensaje && <p className="mt-4 text-center text-sm text-white">{mensaje}</p>}
     </div>
+  </div>
   );
 }
