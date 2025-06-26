@@ -62,6 +62,7 @@ export default function DetallePelicula() {
   if (!pelicula) return <p className="text-center mt-8 text-gray-400">Cargando película...</p>;
 
   return (
+    // fondo original 
     <div
     className="min-h-screen bg-cover bg-center text-white p-6"
     style={{
@@ -72,6 +73,7 @@ export default function DetallePelicula() {
       <h1 className="text-3xl font-bold mb-2">{pelicula.title}</h1>
       <p className="text-gray-300 mb-4">{pelicula.release_date} • ⭐ {pelicula.vote_average}</p>
   
+      {/* porter pelicula */}
       <img
         src={`https://image.tmdb.org/t/p/w500${pelicula.poster_path}`}
         alt={pelicula.title}
